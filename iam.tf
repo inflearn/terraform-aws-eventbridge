@@ -392,15 +392,15 @@ data "aws_iam_policy_document" "additional_inline" {
     for_each = var.policy_statements
 
     content {
-      sid           = lookup(statement.value, "sid", replace(statement.key, "/[^0-9A-Za-z]*/", ""))
-      effect        = lookup(statement.value, "effect", null)
-      actions       = lookup(statement.value, "actions", null)
-      not_actions   = lookup(statement.value, "not_actions", null)
-      resources     = lookup(statement.value, "resources", null)
-      not_resources = lookup(statement.value, "not_resources", null)
+      sid           = try(statement.value.sid, replace(statement.key, "/[^0-9A-Za-z]*/", ""))
+      effect        = try(statement.value.effect, null)
+      actions       = try(statement.value.actions, null)
+      not_actions   = try(statement.value.not_actions, null)
+      resources     = try(statement.value.resources, null)
+      not_resources = try(statement.value.not_resources, null)
 
       dynamic "principals" {
-        for_each = lookup(statement.value, "principals", [])
+        for_each = try(statement.value.principals, [])
         content {
           type        = principals.value.type
           identifiers = principals.value.identifiers
@@ -408,7 +408,7 @@ data "aws_iam_policy_document" "additional_inline" {
       }
 
       dynamic "not_principals" {
-        for_each = lookup(statement.value, "not_principals", [])
+        for_each = try(statement.value.not_principals, [])
         content {
           type        = not_principals.value.type
           identifiers = not_principals.value.identifiers
@@ -416,7 +416,7 @@ data "aws_iam_policy_document" "additional_inline" {
       }
 
       dynamic "condition" {
-        for_each = lookup(statement.value, "condition", [])
+        for_each = try(statement.value.condition, [])
         content {
           test     = condition.value.test
           variable = condition.value.variable
